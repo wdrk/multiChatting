@@ -1,4 +1,6 @@
 #include <iostream>
+#include <vector>
+#include <string>
 #include <conio.h>
 #include <WinSock2.h>
 #pragma comment(lib, "ws2_32")
@@ -11,6 +13,8 @@
 
 // 접속할 서버의 IP 주소를 설정하는 상수입니다.
 #define IP_ADDRESS "127.0.0.1"
+
+#define THREADS_COUNT 10
 
 SOCKADDR_IN& svraddrInit()
 {
@@ -236,61 +240,25 @@ auto __cdecl main(int argc, char* argv[]) -> int
 	WSADATA wsa = { 0 };
 	::WSAStartup(0x0202, &wsa);
 
-	SOCKET hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
-
 	printf("Input Any Key");
 	_getch();
 	putchar('\n');
 
 	HANDLE hThreadArray[10] = { nullptr };
-
-	hThreadArray[0] = ::CreateThread(NULL, 0, Thread1, (LPVOID)hSocket, 0, NULL);
-	char szBuffer[32] = "**** Thread [ 1 ] Running ****";
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[1] = ::CreateThread(NULL, 0, Thread2, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 2 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[2] = ::CreateThread(NULL, 0, Thread3, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 3 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[3] = ::CreateThread(NULL, 0, Thread4, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 4 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[4] = ::CreateThread(NULL, 0, Thread5, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 5 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[5] = ::CreateThread(NULL, 0, Thread6, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 6 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[6] = ::CreateThread(NULL, 0, Thread7, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 7 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[7] = ::CreateThread(NULL, 0, Thread8, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 8 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[8] = ::CreateThread(NULL, 0, Thread9, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 9 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
-	hThreadArray[9] = ::CreateThread(NULL, 0, Thread0, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 0 ] Running ****");
-	OutputDebugStringA(szBuffer);
-
+	std::vector<HANDLE> vt(THREADS_COUNT);
+	for (int i = 0; i < vt.size(); ++i)
+	{
+		SOCKET hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
+		std::string strObject{ "**** Thread [ " + std::to_string(i) + " ] Running ****" };
+		vt[i] = ::CreateThread(NULL, 0, Thread1, (LPVOID)hSocket, 0, NULL);
+		OutputDebugStringA(strObject.c_str());
+		::shutdown(hSocket, SD_BOTH);
+		::closesocket(hSocket);
+	}
 	DWORD dwTemp = WaitForMultipleObjects(10, hThreadArray, true, INFINITE);
 	
-	::shutdown(hSocket, SD_BOTH);
-	::closesocket(hSocket);
 	::Sleep(100);
 	::WSACleanup();
-//	_tprintf(_T("dwTemp : %d\n"), dwTemp);
 	OutputDebugStringA("[[[[[[[[[[ Good Bye ]]]]]]]]]]]");
 
 	return 0;
