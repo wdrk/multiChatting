@@ -10,15 +10,21 @@
 #define LOOP_COUNT 10
 
 // 접속할 서버의 IP 주소를 설정하는 상수입니다.
-#define IP_ADDRESS "192.168.0.0"
+#define IP_ADDRESS "127.0.0.1"
 
-DWORD WINAPI Thread1(LPVOID pParam)
+SOCKADDR_IN& svraddrInit()
 {
-	SOCKET hSocket1 = ::socket(AF_INET, SOCK_STREAM, 0);
 	SOCKADDR_IN svraddr = { 0 };
 	svraddr.sin_family = AF_INET;
 	svraddr.sin_port = htons(25000);
 	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	return svraddr;
+}
+
+DWORD WINAPI Thread1(LPVOID pParam)
+{
+	SOCKET hSocket1 = ::socket(AF_INET, SOCK_STREAM, 0);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket1, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -40,10 +46,7 @@ DWORD WINAPI Thread1(LPVOID pParam)
 DWORD WINAPI Thread2(LPVOID pParam)
 {
 	SOCKET hSocket2 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket2, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -64,10 +67,7 @@ DWORD WINAPI Thread2(LPVOID pParam)
 DWORD WINAPI Thread3(LPVOID pParam)
 {
 	SOCKET hSocket3 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket3, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -88,10 +88,7 @@ DWORD WINAPI Thread3(LPVOID pParam)
 DWORD WINAPI Thread4(LPVOID pParam)
 {
 	SOCKET hSocket1 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket1, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -112,10 +109,7 @@ DWORD WINAPI Thread4(LPVOID pParam)
 DWORD WINAPI Thread5(LPVOID pParam)
 {
 	SOCKET hSocket2 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket2, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -136,10 +130,7 @@ DWORD WINAPI Thread5(LPVOID pParam)
 DWORD WINAPI Thread6(LPVOID pParam)
 {
 	SOCKET hSocket3 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket3, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -159,10 +150,7 @@ DWORD WINAPI Thread6(LPVOID pParam)
 DWORD WINAPI Thread7(LPVOID pParam)
 {
 	SOCKET hSocket1 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket1, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -183,10 +171,7 @@ DWORD WINAPI Thread7(LPVOID pParam)
 DWORD WINAPI Thread8(LPVOID pParam)
 {
 	SOCKET hSocket2 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket2, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -207,10 +192,7 @@ DWORD WINAPI Thread8(LPVOID pParam)
 DWORD WINAPI Thread9(LPVOID pParam)
 {
 	SOCKET hSocket3 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket3, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
@@ -228,17 +210,14 @@ DWORD WINAPI Thread9(LPVOID pParam)
 	return 0;
 }
 
-DWORD WINAPI Thread10(LPVOID pParam)
+DWORD WINAPI Thread0(LPVOID pParam)
 {
 	SOCKET hSocket3 = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
-	svraddr.sin_family = AF_INET;
-	svraddr.sin_port = htons(25000);
-	svraddr.sin_addr.S_un.S_addr = inet_addr(IP_ADDRESS);
+	SOCKADDR_IN svraddr = svraddrInit();
 	::connect(hSocket3, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
 	int i = 0;
-	char szMessage[32] = "1111111111000000000";
+	char szMessage[32] = "0000000000000000000";
 
 	int nLength = strlen(szMessage);
 	++nLength;
@@ -247,8 +226,8 @@ DWORD WINAPI Thread10(LPVOID pParam)
 		::send(hSocket3, szMessage, strlen(szMessage) + 1, 0);
 	}
 
-	_tprintf(_T("Thread [ 10 ] Count : %d\n"), i);
-	OutputDebugStringA("[ Thread10 Send Complete ]\n");
+	_tprintf(_T("Thread [ 0 ] Count : %d\n"), i);
+	OutputDebugStringA("[ Thread0 Send Complete ]\n");
 	return 0;
 }
 
@@ -301,8 +280,8 @@ auto __cdecl main(int argc, char* argv[]) -> int
 	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 9 ] Running ****");
 	OutputDebugStringA(szBuffer);
 
-	hThreadArray[9] = ::CreateThread(NULL, 0, Thread10, (LPVOID)hSocket, 0, NULL);
-	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 10 ] Running ****");
+	hThreadArray[9] = ::CreateThread(NULL, 0, Thread0, (LPVOID)hSocket, 0, NULL);
+	strcpy_s(szBuffer, sizeof(szBuffer), "**** Thread [ 0 ] Running ****");
 	OutputDebugStringA(szBuffer);
 
 	DWORD dwTemp = WaitForMultipleObjects(10, hThreadArray, true, INFINITE);
