@@ -100,7 +100,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	WSADATA wsa = { 0 };
 	if (::WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		std::cout << "ERROR: 윈속을 초기화 할 수 없습니다.\n";
+		std::cerr << "ERROR: 윈속을 초기화 할 수 없습니다.\n";
 		return 0;
 	}
 
@@ -109,13 +109,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Ctrl+C 키를 눌렀을 때 이를 감지하고 처리할 함수를 등록한다.
 	if (::SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE) == FALSE)
-		std::cout << "ERROR: Ctrl+C 처리기를 등록할 수 없습니다.\n";
+		std::cerr << "ERROR: Ctrl+C 처리기를 등록할 수 없습니다.\n";
 
 	//접속대기 소켓 생성
 	g_hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
 	if (g_hSocket == INVALID_SOCKET)
 	{
-		std::cout << "ERROR: 접속 대기 소켓을 생성할 수 없습니다.\n";
+		std::cerr << "ERROR: 접속 대기 소켓을 생성할 수 없습니다.\n";
 		return 0;
 	}
 
@@ -126,14 +126,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	svraddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	if (::bind(g_hSocket, (SOCKADDR*)&svraddr, sizeof(svraddr)) == SOCKET_ERROR)
 	{
-		std::cout << "ERROR: 소켓에 IP주소와 포트를 바인드 할 수 없습니다.\n";
+		std::cerr << "ERROR: 소켓에 IP주소와 포트를 바인드 할 수 없습니다.\n";
 		return 0;
 	}
 
 	//접속대기 상태로 전환
 	if (::listen(g_hSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		std::cout << "ERROR: 리슨 상태로 전환할 수 없습니다.\n";
+		std::cerr << "ERROR: 리슨 상태로 전환할 수 없습니다.\n";
 		return 0;
 	}
 	std::cout << "*** 채팅서버를 시작합니다. ***\n";
@@ -151,7 +151,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		if (AddUser(hClient) == FALSE)
 		{
-			std::cout << "ERROR: 더 이상 클라이언트 연결을 처리할 수 없습니다.\n";
+			std::cerr << "ERROR: 더 이상 클라이언트 연결을 처리할 수 없습니다.\n";
 			CtrlHandler(CTRL_C_EVENT);
 			break;
 		}
