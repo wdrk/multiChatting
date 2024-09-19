@@ -2,18 +2,17 @@
 //
 
 #include "stdafx.h"
+#include <iostream>
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32")
 #include <windows.h>
 #include <list>
 #include <iterator>
 
-/////////////////////////////////////////////////////////////////////////
 CRITICAL_SECTION	g_cs;			//스레드 동기화 객체.
 SOCKET				g_hSocket;		//서버의 리슨 소켓.
 std::list<SOCKET>	g_listClient;	//연결된 클라이언트 소켓 리스트.
 
-/////////////////////////////////////////////////////////////////////////
 //새로 연결된 클라이언트의 소켓을 리스트에 저장한다.
 BOOL AddUser(SOCKET hSocket)
 {
@@ -25,21 +24,19 @@ BOOL AddUser(SOCKET hSocket)
 	return TRUE;
 }
 
-/////////////////////////////////////////////////////////////////////////
 //연결된 클라이언트 모두에게 메시지를 전송한다.
 void SendChattingMessage(char *pszParam)
 {
-	int nLength = strlen(pszParam);
+	auto nLength = strlen(pszParam);
 	std::list<SOCKET>::iterator it;
 
 	::EnterCriticalSection(&g_cs);		//임계영역 시작
 	//연결된 모든 클라이언트들에게 같은 메시지를 전달한다.
 	for (it = g_listClient.begin(); it != g_listClient.end(); ++it)
-		::send(*it, pszParam, sizeof(char)* (nLength + 1), 0);
+		::send(*it, pszParam, (int)(sizeof(char)* (nLength + 1)), 0);
 	::LeaveCriticalSection(&g_cs);		//임계영역 끝
 }
 
-/////////////////////////////////////////////////////////////////////////
 //Ctrl+C 이벤트를 감지하고 프로그램을 종료한다.
 BOOL CtrlHandler(DWORD dwType)
 {
@@ -57,13 +54,12 @@ BOOL CtrlHandler(DWORD dwType)
 		g_listClient.clear();
 		::LeaveCriticalSection(&g_cs);		//임계영역 끝
 
-		puts("모든 클라이언트 연결을 종료했습니다.");
+		std::cout << "모든 클라이언트 연결을 종료했습니다.\n";
 		//클라이언트와 통신하는 스레드들이 종료되기를 기다린다.
 		::Sleep(100);
 		::DeleteCriticalSection(&g_cs);
 		::closesocket(g_hSocket);
 
-		//윈속 해제
 		::WSACleanup();
 		exit(0);
 		return TRUE;
@@ -72,7 +68,6 @@ BOOL CtrlHandler(DWORD dwType)
 	return FALSE;
 }
 
-/////////////////////////////////////////////////////////////////////////
 //클라이언트에게 채팅 메시지 서비스를 제공하는 스레드 함수.
 //연결된 각각의 클라이언트마다 하나씩 스레드를 생성한다.
 DWORD WINAPI ThreadFunction(LPVOID pParam)
@@ -81,16 +76,16 @@ DWORD WINAPI ThreadFunction(LPVOID pParam)
 	int nReceive = 0;
 	SOCKET hClient = (SOCKET)pParam;
 
-	puts("새 클라이언트가 연결되었습니다.");
+	std::cout << "새 클라이언트가 연결되었습니다.\n";
 	while ((nReceive = ::recv(hClient, szBuffer, sizeof(szBuffer), 0)) > 0)
 	{
-		puts(szBuffer);
+		std::cout << szBuffer << "\n";
 		//수신한 문자열을 연결된 전체 클라이언트들에게 전송
 		//SendChattingMessage(szBuffer);
 		//memset(szBuffer, 0, sizeof(szBuffer));
 	}
 
-	puts("클라이언트가 연결을 끊었습니다.");
+	std::cout << "클라이언트가 연결을 끊었습니다.\n";
 	::EnterCriticalSection(&g_cs);		//임계영역 시작
 	g_listClient.remove(hClient);
 	::LeaveCriticalSection(&g_cs);		//임계영역 끝
@@ -99,14 +94,13 @@ DWORD WINAPI ThreadFunction(LPVOID pParam)
 	return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//윈속 초기화
 	WSADATA wsa = { 0 };
 	if (::WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
-		puts("ERROR: 윈속을 초기화 할 수 없습니다.");
+		std::cerr << "ERROR: 윈속을 초기화 할 수 없습니다.\n";
 		return 0;
 	}
 
@@ -114,14 +108,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	::InitializeCriticalSection(&g_cs);
 
 	//Ctrl+C 키를 눌렀을 때 이를 감지하고 처리할 함수를 등록한다.
-	if (::SetConsoleCtrlHandler( (PHANDLER_ROUTINE)CtrlHandler, TRUE) == FALSE )
-		puts("ERROR: Ctrl+C 처리기를 등록할 수 없습니다.");
+	if (::SetConsoleCtrlHandler((PHANDLER_ROUTINE)CtrlHandler, TRUE) == FALSE)
+		std::cerr << "ERROR: Ctrl+C 처리기를 등록할 수 없습니다.\n";
 
 	//접속대기 소켓 생성
 	g_hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
 	if (g_hSocket == INVALID_SOCKET)
 	{
-		puts("ERROR: 접속 대기 소켓을 생성할 수 없습니다.");
+		std::cerr << "ERROR: 접속 대기 소켓을 생성할 수 없습니다.\n";
 		return 0;
 	}
 
@@ -132,17 +126,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	svraddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	if (::bind(g_hSocket, (SOCKADDR*)&svraddr, sizeof(svraddr)) == SOCKET_ERROR)
 	{
-		puts("ERROR: 소켓에 IP주소와 포트를 바인드 할 수 없습니다.");
+		std::cerr << "ERROR: 소켓에 IP주소와 포트를 바인드 할 수 없습니다.\n";
 		return 0;
 	}
 
 	//접속대기 상태로 전환
 	if (::listen(g_hSocket, SOMAXCONN) == SOCKET_ERROR)
 	{
-		puts("ERROR: 리슨 상태로 전환할 수 없습니다.");
+		std::cerr << "ERROR: 리슨 상태로 전환할 수 없습니다.\n";
 		return 0;
 	}
-	puts("*** 채팅서버를 시작합니다. ***");
+	std::cout << "*** 채팅서버를 시작합니다. ***\n";
 
 	//클라이언트 접속 처리 및 대응
 	SOCKADDR_IN clientaddr = { 0 };
@@ -157,7 +151,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		if (AddUser(hClient) == FALSE)
 		{
-			puts("ERROR: 더 이상 클라이언트 연결을 처리할 수 없습니다.");
+			std::cerr << "ERROR: 더 이상 클라이언트 연결을 처리할 수 없습니다.\n";
 			CtrlHandler(CTRL_C_EVENT);
 			break;
 		}
@@ -173,6 +167,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		::CloseHandle(hThread);
 	}
 
-	puts("*** 채팅서버를 종료합니다. ***");
+	std::cout << "*** 채팅서버를 종료합니다. ***\n";
 	return 0;
 }
