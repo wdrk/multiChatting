@@ -97,7 +97,7 @@ DWORD WINAPI ThreadFunction(LPVOID pParam)
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//윈속 초기화
-	WSADATA wsa = { 0 };
+	WSADATA wsa{ 0 };
 	if (::WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		std::cerr << "ERROR: 윈속을 초기화 할 수 없습니다.\n";
@@ -120,7 +120,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	//포트 바인딩
-	SOCKADDR_IN	svraddr = { 0 };
+	SOCKADDR_IN	svraddr{ 0 };
 	svraddr.sin_family = AF_INET;
 	svraddr.sin_port = htons(25000);
 	svraddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
@@ -139,15 +139,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "*** 채팅서버를 시작합니다. ***\n";
 
 	//클라이언트 접속 처리 및 대응
-	SOCKADDR_IN clientaddr = { 0 };
-	int nAddrLen = sizeof(clientaddr);
-	SOCKET hClient = 0;
-	DWORD dwThreadID = 0;
-	HANDLE hThread;
+	SOCKADDR_IN clientaddr{ 0 };
+	int nAddrLen{ sizeof(clientaddr) };
+	SOCKET hClient{ 0 };
+	DWORD dwThreadID{ 0 };
+	HANDLE hThread{ nullptr };
 
 	//클라이언트 연결을 받아들이고 새로운 소켓 생성(개방)
-	while ((hClient = ::accept(g_hSocket,
-		(SOCKADDR*)&clientaddr, &nAddrLen)) != INVALID_SOCKET)
+	while ((hClient = ::accept(g_hSocket, (SOCKADDR*)&clientaddr, &nAddrLen)) != INVALID_SOCKET)
 	{
 		if (AddUser(hClient) == FALSE)
 		{
@@ -164,7 +163,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			0,							//생성 플래그는 기본값 사용
 			&dwThreadID);				//생성된 스레드ID가 저장될 변수주소
 
-		::CloseHandle(hThread);
+		if (hThread == nullptr)
+		{
+			std::cerr << "ERROR: hThread의 값이 nullptr입니다.\n";
+			return -1;
+		}
+		else
+		{
+			::CloseHandle(hThread);
+		}
 	}
 
 	std::cout << "*** 채팅서버를 종료합니다. ***\n";
