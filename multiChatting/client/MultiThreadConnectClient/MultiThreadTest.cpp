@@ -27,7 +27,7 @@ SOCKADDR_IN& svraddrInit(SOCKADDR_IN& svraddr)
 DWORD WINAPI chatThread(LPVOID pParam)
 {
 	SOCKET hSocket = ::socket(AF_INET, SOCK_STREAM, 0);
-	SOCKADDR_IN svraddr = { 0 };
+	SOCKADDR_IN svraddr{ 0 };
 	svraddrInit(svraddr);
 	::connect(hSocket, (SOCKADDR*)&svraddr, sizeof(svraddr));
 
@@ -49,15 +49,19 @@ DWORD WINAPI chatThread(LPVOID pParam)
 
 	// 1. 시드 생성기: 시스템 클럭을 이용하여 시드 생성
 	std::random_device rd;  // 실제 하드웨어 엔트로피 소스 기반(시스템에 따라 다를 수 있음)
-	std::mt19937 gen(rd()); // Mersenne Twister 난수 생성기, 시드로 초기화
+	std::mt19937 gen{rd()}; // Mersenne Twister 난수 생성기, 시드로 초기화
 
-	// 2. 분포 정의: 1부터 100까지의 정수 범위
+	// 2. 분포 정의: 0부터 9까지의 정수 범위
 	std::uniform_int_distribution<> dis(0, 9);
 
 	for (int i = 0; i < LOOP_COUNT; ++i)
 	{
-
-		::send(hSocket, strRandomWords[dis(gen)].c_str(), strRandomWords[dis(gen)].size(), 0);
+		::send(
+			hSocket,
+			((strRandomWords[dis(gen)] + "[ " + std::to_string(i) + " ]").c_str()),
+			//strRandomWords[dis(gen)].c_str(),
+			strRandomWords[dis(gen)].size(),
+			0);
 		Sleep(1);
 	}
 
