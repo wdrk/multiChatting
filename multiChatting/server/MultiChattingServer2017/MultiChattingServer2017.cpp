@@ -8,12 +8,10 @@
 #include <list>
 #include <iterator>
 
-/////////////////////////////////////////////////////////////////////////
 CRITICAL_SECTION	g_cs;			//스레드 동기화 객체.
 SOCKET				g_hSocket;		//서버의 리슨 소켓.
 std::list<SOCKET>	g_listClient;	//연결된 클라이언트 소켓 리스트.
 
-/////////////////////////////////////////////////////////////////////////
 //새로 연결된 클라이언트의 소켓을 리스트에 저장한다.
 BOOL AddUser(SOCKET hSocket)
 {
@@ -25,7 +23,6 @@ BOOL AddUser(SOCKET hSocket)
 	return TRUE;
 }
 
-/////////////////////////////////////////////////////////////////////////
 //연결된 클라이언트 모두에게 메시지를 전송한다.
 void SendChattingMessage(char *pszParam)
 {
@@ -39,7 +36,6 @@ void SendChattingMessage(char *pszParam)
 	::LeaveCriticalSection(&g_cs);		//임계영역 끝
 }
 
-/////////////////////////////////////////////////////////////////////////
 //Ctrl+C 이벤트를 감지하고 프로그램을 종료한다.
 BOOL CtrlHandler(DWORD dwType)
 {
@@ -63,7 +59,6 @@ BOOL CtrlHandler(DWORD dwType)
 		::DeleteCriticalSection(&g_cs);
 		::closesocket(g_hSocket);
 
-		//윈속 해제
 		::WSACleanup();
 		exit(0);
 		return TRUE;
@@ -72,7 +67,6 @@ BOOL CtrlHandler(DWORD dwType)
 	return FALSE;
 }
 
-/////////////////////////////////////////////////////////////////////////
 //클라이언트에게 채팅 메시지 서비스를 제공하는 스레드 함수.
 //연결된 각각의 클라이언트마다 하나씩 스레드를 생성한다.
 DWORD WINAPI ThreadFunction(LPVOID pParam)
@@ -99,7 +93,6 @@ DWORD WINAPI ThreadFunction(LPVOID pParam)
 	return 0;
 }
 
-/////////////////////////////////////////////////////////////////////////
 int _tmain(int argc, _TCHAR* argv[])
 {
 	//윈속 초기화
